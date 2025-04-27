@@ -18,9 +18,10 @@ let studyPeriods = [
 
 // this must be global
 const currentDate = new Date();
+let weekNumberElement;
 
 function checkDateBefore() {
-  const weekNumberElement = document.querySelector("#week-number");
+  weekNumberElement = document.querySelector("#week-number");
 
   const lang = document.documentElement.lang;
   
