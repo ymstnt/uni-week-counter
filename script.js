@@ -16,14 +16,13 @@ let studyPeriods = [
   { start: new Date(2025, 1, 17), end: new Date(2025, 4, 24) },
 ];
 
-let currentDate = new Date();
-
-let weekNumberElement = document.querySelector("#week-number");
-
-const lang = document.documentElement.lang;
+const currentDate = new Date();
 
 function checkDateBefore() {
-  console.log(currentDate.getDay());
+  const weekNumberElement = document.querySelector("#week-number");
+
+  const lang = document.documentElement.lang;
+  
   let isInExamPeriod = examPeriods.some(
     (period) => currentDate >= period.start && currentDate <= period.end
   );
