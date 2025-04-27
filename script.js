@@ -16,6 +16,7 @@ let studyPeriods = [
   { start: new Date(2025, 1, 17), end: new Date(2025, 4, 24) },
 ];
 
+// this must be global
 const currentDate = new Date();
 
 function checkDateBefore() {
