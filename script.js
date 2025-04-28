@@ -85,11 +85,7 @@ function calculateWeekNumber(firstWeek) {
     }
   }
 
-  if (weekNumberElement == null) {
-    checkDateBefore();
-  } else {
-    weekNumberElement.innerText = weeksPassed.toString() + suffix;
-  }
+  weekNumberElement.innerText = weeksPassed.toString() + suffix;
 }
 
-window.addEventListener("DOMContentLoaded", checkDateBefore);
+document.addEventListener("DOMContentLoaded", checkDateBefore);
