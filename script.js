@@ -23,10 +23,6 @@ const lang = document.documentElement.lang;
 
 function checkDateBefore() {
   weekNumberElement = document.querySelector("#week-number");
-  if (weekNumberElement === null) {
-    setTimeout(checkDateBefore, 0);
-    return;
-  }
 
   let isInExamPeriod = examPeriods.some(
     (period) => currentDate >= period.start && currentDate <= period.end
