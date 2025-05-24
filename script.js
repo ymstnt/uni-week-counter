@@ -21,14 +21,21 @@ let weekNumberElement;
 const currentDate = new Date();
 const lang = document.documentElement.lang;
 
+// Helper to check if a date is within a period, including the full end day
+function isDateInPeriod(date, period) {
+  const periodEnd = new Date(period.end);
+  periodEnd.setHours(23, 59, 59, 999);
+  return date >= period.start && date <= periodEnd;
+}
+
 function checkDateBefore() {
   weekNumberElement = document.querySelector("#week-number");
 
   let isInExamPeriod = examPeriods.some(
-    (period) => currentDate >= period.start && currentDate <= period.end
+    (period) => isDateInPeriod(currentDate, period)
   );
-  let isInStudyPeriod = studyPeriods.some(
-    (period) => currentDate >= period.start && currentDate <= period.end
+  let isInStudyPeriod = studyPeriods.find(
+    (period) => isDateInPeriod(currentDate, period)
   );
 
   if (isInExamPeriod) {
@@ -39,7 +46,7 @@ function checkDateBefore() {
     }
     weekNumberElement.style.fontSize = "1.2em";
   } else if (isInStudyPeriod) {
-    calculateWeekNumber(getFirstStudyPeriodDay());
+    calculateWeekNumber(isInStudyPeriod.start);
   } else {
     if (lang === "hu") {
       weekNumberElement.innerText = "Szünet";  
