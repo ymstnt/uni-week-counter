@@ -44,7 +44,6 @@ function checkDateBefore() {
     } else {
       weekNumberElement.innerText = "Exams - break";
     }
-    weekNumberElement.style.fontSize = "1.2em";
   } else if (isInStudyPeriod) {
     calculateWeekNumber(isInStudyPeriod.start);
   } else {
@@ -53,7 +52,6 @@ function checkDateBefore() {
     } else {
       weekNumberElement.innerText = "Break";
     }
-    weekNumberElement.style.fontSize = "1.2em";
   }
 }
 
