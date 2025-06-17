@@ -1,0 +1,112 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"time"
+)
+
+type Period struct {
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
+}
+
+var examPeriods = []Period{
+	{Start: time.Date(2023, 12, 18, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 2, 3, 0, 0, 0, 0, time.UTC)},
+	{Start: time.Date(2024, 5, 20, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 6, 29, 0, 0, 0, 0, time.UTC)},
+	{Start: time.Date(2024, 12, 16, 0, 0, 0, 0, time.UTC), End: time.Date(2025, 2, 8, 0, 0, 0, 0, time.UTC)},
+	{Start: time.Date(2025, 5, 26, 0, 0, 0, 0, time.UTC), End: time.Date(2025, 7, 5, 0, 0, 0, 0, time.UTC)},
+}
+
+var studyPeriods = []Period{
+	{Start: time.Date(2023, 9, 11, 0, 0, 0, 0, time.UTC), End: time.Date(2023, 12, 16, 0, 0, 0, 0, time.UTC)},
+	{Start: time.Date(2024, 2, 12, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 5, 18, 0, 0, 0, 0, time.UTC)},
+	{Start: time.Date(2024, 9, 9, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 12, 14, 0, 0, 0, 0, time.UTC)},
+	{Start: time.Date(2025, 2, 17, 0, 0, 0, 0, time.UTC), End: time.Date(2025, 5, 24, 0, 0, 0, 0, time.UTC)},
+}
+
+func isDateInPeriod(date time.Time, period Period) bool {
+	periodEnd := period.End.Add(24 * time.Hour) // Include full end day
+	return !date.Before(period.Start) && date.Before(periodEnd)
+}
+
+func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
+	currentDate := time.Now()
+	//currentDate := time.Date(2025, 2, 17, 0, 0, 0, 0, time.UTC)
+	var response string
+
+	isInExamPeriod := false
+	var firstStudyPeriodStart time.Time
+
+	lang := r.URL.Query().Get("lang")
+	if lang != "hu" {
+		lang = "en"
+	}
+
+	numberOnly := r.URL.Query().Get("numberOnly") == "true"
+
+	for _, period := range examPeriods {
+		if isDateInPeriod(currentDate, period) {
+			isInExamPeriod = true
+			break
+		}
+	}
+
+	if !isInExamPeriod {
+		for _, period := range studyPeriods {
+			if isDateInPeriod(currentDate, period) {
+				firstStudyPeriodStart = period.Start
+				break
+			}
+		}
+
+		if !firstStudyPeriodStart.IsZero() {
+			weeksPassed := int(currentDate.Sub(firstStudyPeriodStart).Hours()/(24*7)) + 1
+			if numberOnly {
+				response = fmt.Sprintf("%d", weeksPassed)
+			} else {
+				suffix := getSuffix(weeksPassed)
+				if lang == "hu" {
+					suffix = "."
+				}
+				response = fmt.Sprintf("%d%s", weeksPassed, suffix)
+			}
+		} else {
+			response = "Break"
+			if lang == "hu" {
+				response = "Szünet"
+			}
+		}
+	} else {
+		response = "Exams - break"
+		if lang == "hu" {
+			response = "Vizsgaidőszak - szünet"
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": response})
+}
+
+func getSuffix(weekNum int) string {
+	var suffix string
+	switch weekNum {
+	case 1:
+		suffix = "st"
+	case 2:
+		suffix = "nd"
+	case 3:
+		suffix = "rd"
+	default:
+		suffix = "th"
+	}
+
+	return suffix
+}
+
+func main() {
+	fmt.Println("Ready.")
+	http.HandleFunc("/uniWeekCount", getCurrentWeek)
+	http.ListenAndServe(":8080", nil)
+}
