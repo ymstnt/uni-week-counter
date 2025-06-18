@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -106,7 +107,19 @@ func getSuffix(weekNum int) string {
 }
 
 func main() {
-	fmt.Println("Ready.")
+	port := "8080"
+
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		port = envPort
+	} else if len(os.Args) > 1 {
+		port = os.Args[1]
+	}
+
 	http.HandleFunc("/uniWeekCount", getCurrentWeek)
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+		return
+	}
+	fmt.Println("Server is listening on:" + port)
 }
