@@ -25,10 +25,6 @@ var examPeriods = []Period{
 	{Start: date(2024, 12, 16), End: date(2025, 2, 8)},
 	{Start: date(2024, 5, 20), End: date(2024, 6, 29)},
 	{Start: date(2023, 12, 18), End: date(2024, 2, 3)},
-	{Start: date(2024, 5, 20), End: date(2024, 6, 29)},
-	{Start: date(2024, 12, 16), End: date(2025, 2, 8)},
-	{Start: date(2025, 5, 26), End: date(2025, 7, 5)},
-	{Start: date(2025, 12, 15), End: date(2026, 2, 6)},
 }
 
 // Start should be the first Monday of studyPeriods, End should be the last Saturday
@@ -39,15 +35,16 @@ var studyPeriods = []Period{
 	{Start: date(2024, 9, 9), End: date(2024, 12, 14)},
 	{Start: date(2024, 2, 12), End: date(2024, 5, 18)},
 	{Start: date(2023, 9, 11), End: date(2023, 12, 16)},
-	{Start: date(2024, 2, 12), End: date(2024, 5, 18)},
-	{Start: date(2024, 9, 9), End: date(2024, 12, 14)},
-	{Start: date(2025, 2, 17), End: date(2025, 5, 24)},
-	{Start: date(2025, 9, 8), End: date(2025, 12, 13)},
 }
 
 func isDateInPeriod(date time.Time, period Period) bool {
 	periodEnd := period.End.Add(24 * time.Hour) // Include full end day
 	return !date.Before(period.Start) && date.Before(periodEnd)
+}
+
+func calculateDaysBetween(start, end time.Time) int {
+	days := int(end.Sub(start).Hours()/24) + 1
+	return days
 }
 
 func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
@@ -92,15 +89,34 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 				response = fmt.Sprintf("%d%s", weeksPassed, suffix)
 			}
 		} else {
-			response = "Break"
-			if lang == "hu" {
-				response = "Szünet"
+			daysLeftBreak := r.URL.Query().Get("daysLeftBreak") == "true"
+
+			// make it only work in the summer break
+			if daysLeftBreak && int(currentDate.Month()) >= 6 {
+				response = fmt.Sprintf("Break (%d days left)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
+				if lang == "hu" {
+					response = fmt.Sprintf("Szünet (%d nap van hátra)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
+				}
+			} else {
+				response = "Break"
+				if lang == "hu" {
+					response = "Szünet"
+				}
 			}
 		}
 	} else {
-		response = "Exams - break"
-		if lang == "hu" {
-			response = "Vizsgaidőszak - szünet"
+		daysLeftExams := r.URL.Query().Get("daysLeftExams") == "true"
+
+		if daysLeftExams {
+			response = fmt.Sprintf("Exams - break (%d days left)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
+			if lang == "hu" {
+				response = fmt.Sprintf("Vizsgaidőszak - szünet (%d nap van hátra)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
+			}
+		} else {
+			response = "Exams - break"
+			if lang == "hu" {
+				response = "Vizsgaidőszak - szünet"
+			}
 		}
 	}
 
