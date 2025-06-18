@@ -17,18 +17,22 @@ func date(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
+// Start should be the first Monday of examPeriods, End should be the last Friday
 var examPeriods = []Period{
 	{Start: date(2023, 12, 18), End: date(2024, 2, 3)},
 	{Start: date(2024, 5, 20), End: date(2024, 6, 29)},
 	{Start: date(2024, 12, 16), End: date(2025, 2, 8)},
 	{Start: date(2025, 5, 26), End: date(2025, 7, 5)},
+	{Start: date(2025, 12, 15), End: date(2026, 2, 6)},
 }
 
+// Start should be the first Monday of studyPeriods, End should be the last Saturday
 var studyPeriods = []Period{
 	{Start: date(2023, 9, 11), End: date(2023, 12, 16)},
 	{Start: date(2024, 2, 12), End: date(2024, 5, 18)},
 	{Start: date(2024, 9, 9), End: date(2024, 12, 14)},
 	{Start: date(2025, 2, 17), End: date(2025, 5, 24)},
+	{Start: date(2025, 9, 8), End: date(2025, 12, 13)},
 }
 
 func isDateInPeriod(date time.Time, period Period) bool {
