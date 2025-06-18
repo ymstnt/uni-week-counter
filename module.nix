@@ -58,7 +58,7 @@ in
         ExecStart = "${cfg.package}/bin/university-week-counter";
         User = user;
         Group = cfg.group;
-        Environment = "PORT=${toString cfg.settings.status-port}";
+        Environment = "PORT=${toString cfg.port}";
       };
     };
   };
