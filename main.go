@@ -47,6 +47,11 @@ func calculateDaysBetween(start, end time.Time) int {
 	return days
 }
 
+func getPeriods(w http.ResponseWriter, r *http.Request, period []Period) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(period)
+}
+
 func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 	currentDate := time.Now()
 	//currentDate := date(2025, 2, 17)
@@ -151,6 +156,13 @@ func main() {
 	}
 
 	http.HandleFunc("/uniWeekCount", getCurrentWeek)
+	http.HandleFunc("/studyPeriods", func(w http.ResponseWriter, r *http.Request) {
+		getPeriods(w, r, studyPeriods)
+	})
+	http.HandleFunc("/examPeriods", func(w http.ResponseWriter, r *http.Request) {
+		getPeriods(w, r, examPeriods)
+	})
+
 	go func() {
 		err := http.ListenAndServe(":"+port, nil)
 		if err != nil {
