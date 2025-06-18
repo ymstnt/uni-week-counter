@@ -142,6 +142,7 @@ func getSuffix(weekNum int) string {
 
 func main() {
 	port := "8080"
+	fmt.Println("Starting...")
 
 	if envPort := os.Getenv("PORT"); envPort != "" {
 		port = envPort
@@ -150,10 +151,13 @@ func main() {
 	}
 
 	http.HandleFunc("/uniWeekCount", getCurrentWeek)
-	err := http.ListenAndServe(":"+port, nil)
-	if err != nil {
-		fmt.Println("Error starting server:", err)
-		return
-	}
-	fmt.Println("Server is listening on:" + port)
+	go func() {
+		err := http.ListenAndServe(":"+port, nil)
+		if err != nil {
+			fmt.Println("Error starting server:", err)
+		}
+	}()
+	fmt.Println("Server is listening on: ", port)
+
+	select {}
 }
