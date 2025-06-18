@@ -36,7 +36,7 @@ in
     };
     port = mkOption {
       type = port;
-      default = 8000;
+      default = 8080;
       description = ''
         The port the API will be accessible on.
       '';
