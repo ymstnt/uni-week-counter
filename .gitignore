@@ -4,7 +4,7 @@
 /vendor/
 
 # Nix
-result/
+*result/
 *.drv
 *.nar
 *.narinfo
