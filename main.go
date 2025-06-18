@@ -13,18 +13,22 @@ type Period struct {
 	End   time.Time `json:"end"`
 }
 
+func date(year int, month time.Month, day int) time.Time {
+	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+}
+
 var examPeriods = []Period{
-	{Start: time.Date(2023, 12, 18, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 2, 3, 0, 0, 0, 0, time.UTC)},
-	{Start: time.Date(2024, 5, 20, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 6, 29, 0, 0, 0, 0, time.UTC)},
-	{Start: time.Date(2024, 12, 16, 0, 0, 0, 0, time.UTC), End: time.Date(2025, 2, 8, 0, 0, 0, 0, time.UTC)},
-	{Start: time.Date(2025, 5, 26, 0, 0, 0, 0, time.UTC), End: time.Date(2025, 7, 5, 0, 0, 0, 0, time.UTC)},
+	{Start: date(2023, 12, 18), End: date(2024, 2, 3)},
+	{Start: date(2024, 5, 20), End: date(2024, 6, 29)},
+	{Start: date(2024, 12, 16), End: date(2025, 2, 8)},
+	{Start: date(2025, 5, 26), End: date(2025, 7, 5)},
 }
 
 var studyPeriods = []Period{
-	{Start: time.Date(2023, 9, 11, 0, 0, 0, 0, time.UTC), End: time.Date(2023, 12, 16, 0, 0, 0, 0, time.UTC)},
-	{Start: time.Date(2024, 2, 12, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 5, 18, 0, 0, 0, 0, time.UTC)},
-	{Start: time.Date(2024, 9, 9, 0, 0, 0, 0, time.UTC), End: time.Date(2024, 12, 14, 0, 0, 0, 0, time.UTC)},
-	{Start: time.Date(2025, 2, 17, 0, 0, 0, 0, time.UTC), End: time.Date(2025, 5, 24, 0, 0, 0, 0, time.UTC)},
+	{Start: date(2023, 9, 11), End: date(2023, 12, 16)},
+	{Start: date(2024, 2, 12), End: date(2024, 5, 18)},
+	{Start: date(2024, 9, 9), End: date(2024, 12, 14)},
+	{Start: date(2025, 2, 17), End: date(2025, 5, 24)},
 }
 
 func isDateInPeriod(date time.Time, period Period) bool {
@@ -34,7 +38,7 @@ func isDateInPeriod(date time.Time, period Period) bool {
 
 func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 	currentDate := time.Now()
-	//currentDate := time.Date(2025, 2, 17, 0, 0, 0, 0, time.UTC)
+	//currentDate := date(2025, 2, 17)
 	var response string
 
 	isInExamPeriod := false
