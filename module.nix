@@ -55,7 +55,7 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${cfg.package}/bin/university-week-counter";
+        ExecStart = "${cfg.package}/bin/uni-week-counter";
         User = user;
         Group = cfg.group;
         Environment = "PORT=${toString cfg.port}";
