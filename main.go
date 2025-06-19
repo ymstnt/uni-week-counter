@@ -97,30 +97,36 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 			daysLeftBreak := r.URL.Query().Get("days-left-break") != ""
 
 			// make it only work in the summer break
-			if daysLeftBreak && int(currentDate.Month()) >= 6 {
+			if daysLeftBreak && int(currentDate.Month()) >= 6 && !numberOnly {
 				response = fmt.Sprintf("Break (%d days left)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
 				if lang == "hu" {
 					response = fmt.Sprintf("Szünet (%d nap van hátra)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
 				}
 			} else {
-				response = "Break"
-				if lang == "hu" {
-					response = "Szünet"
+				response = "-2";
+				if !numberOnly {
+					response = "Break"
+					if lang == "hu" {
+						response = "Szünet"
+					}
 				}
 			}
 		}
 	} else {
 		daysLeftExam := r.URL.Query().Get("days-left-exam") != ""
 
-		if daysLeftExam {
+		if daysLeftExam && !numberOnly {
 			response = fmt.Sprintf("Exams - break (%d days left)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
 			if lang == "hu" {
 				response = fmt.Sprintf("Vizsgaidőszak - szünet (%d nap van hátra)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
 			}
 		} else {
-			response = "Exams - break"
-			if lang == "hu" {
-				response = "Vizsgaidőszak - szünet"
+			response = "-1"
+			if !numberOnly {
+				response = "Exams - break"
+				if lang == "hu" {
+					response = "Vizsgaidőszak - szünet"
+				}
 			}
 		}
 	}
