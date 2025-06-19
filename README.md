@@ -3,7 +3,7 @@
 This API provides information about study and exam periods for Obuda University. It allows you to check the current week in the academic calendar and retrieve the defined study and exam periods.
 
 ## Endpoints
-1. Get Current Week
+### 1. Get Current Week
 
 - Endpoint: `/uwc`
 - Method: `GET`
@@ -16,16 +16,16 @@ This API provides information about study and exam periods for Obuda University.
 | days-left-exam  | boolean | no        | If present, also returns the number of days left until the next study period during exam periods. It will have no effect if number-only is present.      |
 
 #### Example:
-`GET https://uwc.ymstnt.com/uwc?lang=hu&number-only&days-left-break&days-left-exams`
+`GET https://uwc.ymstnt.com/uwc?lang=hu&days-left-break&days-left-exams`
 
 Response:
 ```JSON
 {
-  "message": "1st" // or "1", "Exams - break", "Break", "Exams - break (69 days left)", etc.
+  "message": "1." // or "1st", "1", "Exams - break", "Break", "Exams - break (69 days left)", etc.
 }
 ```
 
-2. Get Study Periods
+### 2. Get Study Periods
 
 - Endpoint: `/study-periods`
 - Method: `GET`
@@ -45,7 +45,7 @@ Returns a JSON array of study periods.
 ]
 ```
 
-3. Get Exam Periods
+### 3. Get Exam Periods
 
 - Endpoint: `/exam-periods`
 - Method: `GET`
@@ -72,10 +72,10 @@ There is a hosted instance available at https://uwc.ymstnt.com
 ### Running Locally
 - Clone the Repository:
   ```bash
-  git clone <repository-url>
-  cd <repository-directory>
+  git clone https://github.com/ymstnt/uni-week-counter
+  cd uni-week-counter
   ```
-- Install Go: Make sure you have Go installed.
+- Install Go: Make sure you have Go installed. Alternatively, if you're using Nix, you can do `nix develop` instead.
 - Run the API: `go run main.go`
     - Optionally, you can specify a port using a parameter: `go run main.go 9090`
     - ... or using an environment variable:
@@ -84,6 +84,6 @@ There is a hosted instance available at https://uwc.ymstnt.com
         go run main.go
       ```
 - Access the API: Open your browser or use a tool like Bruno or curl to access the endpoints:
-  - Current Week: `http://localhost:8080/uniWeekCount`
-  - Study Periods: `http://localhost:8080/studyPeriods`
-  - Exam Periods: `http://localhost:8080/examPeriods`
+  - Current Week: `http://localhost:8080/uwc`
+  - Study Periods: `http://localhost:8080/study-periods`
+  - Exam Periods: `http://localhost:8080/exam-periods`
