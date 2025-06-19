@@ -5,18 +5,18 @@ This API provides information about study and exam periods for Obuda University.
 ## Endpoints
 1. Get Current Week
 
-- Endpoint: `/uniWeekCount`
+- Endpoint: `/uwc`
 - Method: `GET`
 #### Query Parameters:
-| Parameter     | Type    | Required? | Description                                                                                             |
-|---------------|---------|-----------|---------------------------------------------------------------------------------------------------------|
-| lang          | string  | no        | Language for the response. Accepts either `en` (default) or `hu` (Hungarian).                           |
-| numberOnly    | boolean | no        | If set to `true`, returns only the week number. Breaks and exams are still returned as text.            |
-| daysLeftBreak | boolean | no        | If set to `true`, also returns the number of days left until the next study period during summer break. |
-| daysLeftExams | boolean | no        | If set to `true`, also returns the number of days left until the next study period during exam periods. |
+| Parameter       | Type    | Required? | Description                                                                                                                                              |
+|-----------------|---------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| lang            | string  | no        | Language for the response. Accepts either `en` (default) or `hu` (Hungarian). It will have no effect if number-only is present.                          |
+| number-only     | boolean | no        | If present, returns only the week number. Exam periods are returned as `-1` and breaks are returned as `-2`                                              |
+| days-left-break | boolean | no        | If present, also returns the number of days left until the next study period during summer break. It will have no effect if number-only is present.      |
+| days-left-exam  | boolean | no        | If present, also returns the number of days left until the next study period during exam periods. It will have no effect if number-only is present.      |
 
 #### Example:
-`GET https://uwc.ymstnt.com/uniWeekCount?lang=hu&numberOnly=true&daysLeftBreak=true&daysLeftExams=true`
+`GET https://uwc.ymstnt.com/uwc?lang=hu&number-only&days-left-break&days-left-exams`
 
 Response:
 ```JSON
@@ -27,11 +27,11 @@ Response:
 
 2. Get Study Periods
 
-- Endpoint: `/studyPeriods`
+- Endpoint: `/study-periods`
 - Method: `GET`
 
 #### Example:
-`GET https://uwc.ymstnt.com/studyPeriods`
+`GET https://uwc.ymstnt.com/study-periods`
 
 Response:
 Returns a JSON array of study periods.
@@ -47,11 +47,11 @@ Returns a JSON array of study periods.
 
 3. Get Exam Periods
 
-- Endpoint: `/examPeriods`
+- Endpoint: `/exam-periods`
 - Method: `GET`
 
 #### Example:
-`GET https://uwc.ymstnt.com/examPeriods`
+`GET https://uwc.ymstnt.com/exam-periods`
 
 Response:
 Returns a JSON array of exam periods.
