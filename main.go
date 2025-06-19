@@ -65,7 +65,7 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 		lang = "en"
 	}
 
-	numberOnly := r.URL.Query().Get("number-only") != ""
+	numberOnly := r.URL.Query().Has("number-only")
 
 	for _, period := range examPeriods {
 		if isDateInPeriod(currentDate, period) {
@@ -94,7 +94,7 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 				response = fmt.Sprintf("%d%s", weeksPassed, suffix)
 			}
 		} else {
-			daysLeftBreak := r.URL.Query().Get("days-left-break") != ""
+			daysLeftBreak := r.URL.Query().Has("days-left-break")
 
 			// make it only work in the summer break
 			if daysLeftBreak && int(currentDate.Month()) >= 6 && !numberOnly {
@@ -103,7 +103,7 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 					response = fmt.Sprintf("Szünet (%d nap van hátra)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
 				}
 			} else {
-				response = "-2";
+				response = "-2"
 				if !numberOnly {
 					response = "Break"
 					if lang == "hu" {
@@ -113,7 +113,7 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
-		daysLeftExam := r.URL.Query().Get("days-left-exam") != ""
+		daysLeftExam := r.URL.Query().Has("days-left-exam")
 
 		if daysLeftExam && !numberOnly {
 			response = fmt.Sprintf("Exams - break (%d days left)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
