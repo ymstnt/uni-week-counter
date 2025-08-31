@@ -53,12 +53,14 @@ func getPeriods(w http.ResponseWriter, r *http.Request, period []Period) {
 }
 
 func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
-	currentDate := time.Now()
-	//currentDate := date(2025, 2, 17)
+	//currentDate := time.Now()
+	currentDate := date(2025, 9, 8)
+	
 	var response string
 
 	isInExamPeriod := false
 	var firstStudyPeriodStart time.Time
+	isRegWeek := false
 
 	lang := r.URL.Query().Get("lang")
 	if lang != "hu" {
@@ -76,13 +78,31 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 
 	if !isInExamPeriod {
 		for _, period := range studyPeriods {
+			regStart := period.Start.Add(-7 * 24 * time.Hour)
+			regEnd := period.Start.Add(-24 * time.Hour)
+
+			if isDateInPeriod(currentDate, Period{Start: regStart, End: regEnd}) {
+				isRegWeek = true
+				break
+			}
+
 			if isDateInPeriod(currentDate, period) {
 				firstStudyPeriodStart = period.Start
 				break
 			}
 		}
 
-		if !firstStudyPeriodStart.IsZero() {
+		if isRegWeek {
+			if numberOnly {
+					response = "0"
+				} else {
+					if lang == "hu" {
+						response = "Regisztrációs hét"
+					} else {
+						response = "Registration week"
+					}
+				}
+		} else if !firstStudyPeriodStart.IsZero() {
 			weeksPassed := int(currentDate.Sub(firstStudyPeriodStart).Hours()/(24*7)) + 1
 			if numberOnly {
 				response = fmt.Sprintf("%d", weeksPassed)
