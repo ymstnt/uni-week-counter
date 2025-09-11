@@ -111,7 +111,13 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 				if lang == "hu" {
 					suffix = "."
 				}
+				doAppendWeek := r.URL.Query().Has("append-week")
+				
 				response = fmt.Sprintf("%d%s", weeksPassed, suffix)
+				if (doAppendWeek) {
+					week := appendWeek(lang)
+					response = fmt.Sprintf("%d%s%s", weeksPassed, suffix,	week)
+				}
 			}
 		} else {
 			daysLeftBreak := r.URL.Query().Has("days-left-break")
@@ -169,6 +175,14 @@ func getSuffix(weekNum int) string {
 	}
 
 	return suffix
+}
+
+func appendWeek(lang string) string {
+	week := " week"
+	if (lang == "hu") {
+		week = " hét"
+	}
+	return week
 }
 
 func main() {
