@@ -53,8 +53,8 @@ func getPeriods(w http.ResponseWriter, r *http.Request, period []Period) {
 }
 
 func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
-	//currentDate := time.Now()
-	currentDate := date(2025, 9, 8)
+	currentDate := time.Now()
+	//currentDate := date(2025, 9, 8)
 	
 	var response string
 
