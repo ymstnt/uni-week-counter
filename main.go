@@ -112,18 +112,18 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 					suffix = "."
 				}
 				doAppendWeek := r.URL.Query().Has("append-week")
-				
+
 				response = fmt.Sprintf("%d%s", weeksPassed, suffix)
-				if (doAppendWeek) {
+				if doAppendWeek {
 					week := appendWeek(lang)
-					response = fmt.Sprintf("%d%s%s", weeksPassed, suffix,	week)
+					response = fmt.Sprintf("%d%s%s", weeksPassed, suffix, week)
 				}
 			}
 		} else {
 			daysLeftBreak := r.URL.Query().Has("days-left-break")
 
 			// make it only work in the summer break
-			if daysLeftBreak && int(currentDate.Month()) >= 6 && !numberOnly {
+			if daysLeftBreak && int(currentDate.Month()) >= 6 && int(currentDate.Month()) < 9 && !numberOnly {
 				response = fmt.Sprintf("Break (%d days left)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
 				if lang == "hu" {
 					response = fmt.Sprintf("Szünet (%d nap van hátra)", calculateDaysBetween(currentDate, studyPeriods[0].Start))
