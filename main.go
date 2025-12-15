@@ -20,6 +20,7 @@ func date(year int, month time.Month, day int) time.Time {
 // Start should be the first Monday of examPeriods, End should be the last Friday
 // Periods should be descending, newest period should be at the top
 var examPeriods = []Period{
+	{Start: date(2026, 5, 26), End: date(2026, 7, 4)},
 	{Start: date(2025, 12, 15), End: date(2026, 2, 6)},
 	{Start: date(2025, 5, 26), End: date(2025, 7, 5)},
 	{Start: date(2024, 12, 16), End: date(2025, 2, 8)},
@@ -30,6 +31,7 @@ var examPeriods = []Period{
 // Start should be the first Monday of studyPeriods, End should be the last Saturday
 // Periods should be descending, newest period should be at the top
 var studyPeriods = []Period{
+	{Start: date(2026, 2, 9), End: date(2026, 5, 23)},
 	{Start: date(2025, 9, 8), End: date(2025, 12, 13)},
 	{Start: date(2025, 2, 17), End: date(2025, 5, 24)},
 	{Start: date(2024, 9, 9), End: date(2024, 12, 14)},
