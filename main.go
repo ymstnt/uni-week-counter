@@ -191,14 +191,6 @@ func getSuffix(weekNum int) string {
 	return suffix
 }
 
-func appendWeek(lang string) string {
-	week := " week"
-	if (lang == "hu") {
-		week = " hét"
-	}
-	return week
-}
-
 func main() {
 	port := "8080"
 	fmt.Println("Starting...")
