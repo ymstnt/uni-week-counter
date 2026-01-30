@@ -44,8 +44,9 @@ Returns a JSON array of study periods.
 ```JSON
 [
   {
-    "start": "2025-09-08T00:00:00Z",
-    "end": "2025-12-13T00:00:00Z"
+    "start": "2025-09-01T00:00:00Z",
+    "end": "2025-12-13T00:00:00Z",
+    "semester": "2025/26/1"
   },
   ...
 ]
@@ -67,7 +68,8 @@ Returns a JSON array of exam periods.
 [
   {
     "start": "2025-12-15T00:00:00Z",
-    "end": "2026-02-06T00:00:00Z"
+    "end": "2026-02-06T00:00:00Z",
+    "semester": "2025/26/1"
   },
   ...
 ]
