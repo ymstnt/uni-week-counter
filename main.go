@@ -17,7 +17,7 @@ func date(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
-// Start should be the first Monday of examPeriods, End should be the last Friday
+// Start should be the first Monday of exam periods, End should be the last Friday
 // Periods should be descending, newest period should be at the top
 var examPeriods = []Period{
 	{Start: date(2026, 5, 26), End: date(2026, 7, 4)},
@@ -28,15 +28,15 @@ var examPeriods = []Period{
 	{Start: date(2023, 12, 18), End: date(2024, 2, 3)},
 }
 
-// Start should be the first Monday of studyPeriods, End should be the last Saturday
+// Start should be the first Monday of study periods (including registration week), End should be the last Saturday
 // Periods should be descending, newest period should be at the top
 var studyPeriods = []Period{
 	{Start: date(2026, 2, 9), End: date(2026, 5, 23)},
-	{Start: date(2025, 9, 8), End: date(2025, 12, 13)},
-	{Start: date(2025, 2, 17), End: date(2025, 5, 24)},
-	{Start: date(2024, 9, 9), End: date(2024, 12, 14)},
-	{Start: date(2024, 2, 12), End: date(2024, 5, 18)},
-	{Start: date(2023, 9, 11), End: date(2023, 12, 16)},
+	{Start: date(2025, 9, 1), End: date(2025, 12, 13)},
+	{Start: date(2025, 2, 10), End: date(2025, 5, 24)},
+	{Start: date(2024, 9, 2), End: date(2024, 12, 14)},
+	{Start: date(2024, 2, 5), End: date(2024, 5, 18)},
+	{Start: date(2023, 9, 04), End: date(2023, 12, 16)},
 }
 
 func isDateInPeriod(date time.Time, period Period) bool {
@@ -81,32 +81,31 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 
 	if !isInExamPeriod {
 		for _, period := range studyPeriods {
-			regStart := period.Start.Add(-7 * 24 * time.Hour)
-			regEnd := period.Start.Add(-24 * time.Hour)
-
-			if isDateInPeriod(currentDate, Period{Start: regStart, End: regEnd}) {
-				isRegWeek = true
-				break
-			}
-
 			if isDateInPeriod(currentDate, period) {
 				firstStudyPeriodStart = period.Start
 				break
 			}
 		}
 
+		if !firstStudyPeriodStart.IsZero() {
+			regWeekEnd := firstStudyPeriodStart.Add(7 * 24 * time.Hour)
+			if currentDate.Before(regWeekEnd) {
+				isRegWeek = true
+			}
+		}
+
 		if isRegWeek {
 			if !verbose {
-					response = "0"
+				response = "0"
+			} else {
+				if lang == "hu" {
+					response = "Regisztrációs hét"
 				} else {
-					if lang == "hu" {
-						response = "Regisztrációs hét"
-					} else {
-						response = "Registration week"
-					}
+					response = "Registration week"
 				}
+			}
 		} else if !firstStudyPeriodStart.IsZero() {
-			weeksPassed := int(currentDate.Sub(firstStudyPeriodStart).Hours()/(24*7)) + 1
+			weeksPassed := int(currentDate.Sub(firstStudyPeriodStart).Hours() / (24 * 7))
 			if verbose {
 				suffix := getSuffix(weeksPassed)
 				if lang == "hu" {
