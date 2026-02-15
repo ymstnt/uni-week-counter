@@ -75,7 +75,7 @@ Returns the number of the week (or remaining days if it's a break or exam period
 
 ### Hosted
 
-There is a hosted instance available at https://uwc.ymstnt.com
+There is a hosted instance available at https://api.ymstnt.com
 
 ### Running Locally
 
