@@ -21,23 +21,23 @@ func date(year int, month time.Month, day int) time.Time {
 // Start should be the first Monday of exam periods, End should be the last Friday
 // Periods should be descending, newest period should be at the top
 var examPeriods = []Period{
-	{Start: date(2026, 5, 26), End: date(2026, 7, 4), Semester: "2025/26/2"},
-	{Start: date(2025, 12, 15), End: date(2026, 2, 6), Semester: "2025/26/1"},
-	{Start: date(2025, 5, 26), End: date(2025, 7, 5), Semester: "2024/25/2"},
-	{Start: date(2024, 12, 16), End: date(2025, 2, 8), Semester: "2024/25/1"},
-	{Start: date(2024, 5, 20), End: date(2024, 6, 29), Semester: "2023/24/2"},
-	{Start: date(2023, 12, 18), End: date(2024, 2, 3), Semester: "2023/24/1"},
+	{Start: date(2026, 5, 26), End: date(2026, 7, 4)},
+	{Start: date(2025, 12, 15), End: date(2026, 2, 6)},
+	{Start: date(2025, 5, 26), End: date(2025, 7, 5)},
+	{Start: date(2024, 12, 16), End: date(2025, 2, 8)},
+	{Start: date(2024, 5, 20), End: date(2024, 6, 29)},
+	{Start: date(2023, 12, 18), End: date(2024, 2, 3)},
 }
 
 // Start should be the first Monday of study periods (including registration week), End should be the last Saturday
 // Periods should be descending, newest period should be at the top
 var studyPeriods = []Period{
-	{Start: date(2026, 2, 9), End: date(2026, 5, 23), Semester: "2025/26/2"},
-	{Start: date(2025, 9, 1), End: date(2025, 12, 13), Semester: "2025/26/1"},
-	{Start: date(2025, 2, 10), End: date(2025, 5, 24), Semester: "2024/25/2"},
-	{Start: date(2024, 9, 2), End: date(2024, 12, 14), Semester: "2024/25/1"},
-	{Start: date(2024, 2, 5), End: date(2024, 5, 18), Semester: "2023/24/2"},
-	{Start: date(2023, 9, 4), End: date(2023, 12, 16), Semester: "2023/24/1"},
+	{Start: date(2026, 2, 9), End: date(2026, 5, 23)},
+	{Start: date(2025, 9, 1), End: date(2025, 12, 13)},
+	{Start: date(2025, 2, 10), End: date(2025, 5, 24)},
+	{Start: date(2024, 9, 2), End: date(2024, 12, 14)},
+	{Start: date(2024, 2, 5), End: date(2024, 5, 18)},
+	{Start: date(2023, 9, 4), End: date(2023, 12, 16)},
 }
 
 func isDateInPeriod(date time.Time, period Period) bool {
@@ -174,6 +174,21 @@ func getSuffix(weekNum int) string {
 	return suffix
 }
 
+func (p *Period) SetSemester() {
+	year := p.Start.Year()
+	var x int
+
+	if p.Start.Month() < time.July {
+		year--
+		x = 2
+	} else {
+		x = 1
+	}
+
+	yy := (year + 1) % 100
+	p.Semester = fmt.Sprintf("%d/%02d/%d", year, yy, x)
+}
+
 func main() {
 	port := "8080"
 	fmt.Println("Starting...")
@@ -182,6 +197,11 @@ func main() {
 		port = envPort
 	} else if len(os.Args) > 1 {
 		port = os.Args[1]
+	}
+
+	for i := range studyPeriods {
+		studyPeriods[i].SetSemester()
+		examPeriods[i].SetSemester()
 	}
 
 	http.HandleFunc("/uwc", getCurrentWeek)
