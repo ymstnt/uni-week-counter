@@ -4,76 +4,72 @@ This API provides information about study and exam periods for Obuda University.
 
 ## Endpoints
 
-### 1. Get Current Week
+### 1. Get everything
 
 - Endpoint: `/uwc`
 - Method: `GET`
 
 #### Query Parameters:
 
-| Parameter | Type    | Required? | Description                                                                                                                                                                                          |
-| --------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| lang      | string  | no        | Language for the response. Accepts either `en` (default) or `hu` (Hungarian).                                                                                                                        |
-| verbose   | boolean | no        | If included, adds proper suffixes during study periods, writes out registration week, exams, and breaks; if omitted, registration week returns `0`, exams return `-1` and breaks `-2`.               |
-| countdown | boolean | no        | If included, returns days left until the next semester during exam or break periods; when `verbose` is also present, adds the extra suffix and appends the countdown to the written exam/break text. |
+| Parameter | Type   | Required? | Description                                                                                                             |
+| --------- | ------ | --------- | ----------------------------------------------------------------------------------------------------------------------- |
+| lang      | string | no        | Language for the response. Affects the suffix and verbose responses. Accepts either `en` (default) or `hu` (Hungarian). |
 
 #### Example:
 
-`GET https://uwc.ymstnt.com/uwc?lang=hu&verbose&countdown`
+`GET https://uwc.ymstnt.com/uwc?lang=hu`
 
 Response:
+
+Returns the number of the week (or remaining days if it's a break or exam period), suffix (language dependent), verbose name (if it's not a study period), if it's an exam period, if it's a study period, if it's registration week, the study periods and the exam periods.
 
 ```JSON
 {
-  "message": "1." // or "1st", "1", "Exams - break", "Break", "Exams - break (69 days left)", "69", etc.
+  "week": 1, //
+  "suffix": ".",
+  "verbose": "", // can be: "Registration week" or "Regisztrációs hét", "Exams - break" or "Vizsgaidőszak - szünet" and "Break" or "Szünet"
+  "exam": false,
+  "study": true,
+  "regWeek": false,
+  "studyPeriods": [
+    {
+      "start": "2026-02-09T00:00:00Z",
+      "end": "2026-05-23T00:00:00Z",
+      "semester": "2025/26/2"
+    },
+    {
+      "start": "2025-09-01T00:00:00Z",
+      "end": "2025-12-13T00:00:00Z",
+      "semester": "2025/26/1"
+    },
+    ...
+  ],
+  "examPeriods": [
+    {
+      "start": "2026-05-26T00:00:00Z",
+      "end": "2026-07-04T00:00:00Z",
+      "semester": "2025/26/2"
+    },
+    {
+      "start": "2025-12-15T00:00:00Z",
+      "end": "2026-02-06T00:00:00Z",
+      "semester": "2025/26/1"
+    },
+    ...
+  ]
 }
 ```
 
-### 2. Get Study Periods
-
-- Endpoint: `/study-periods`
-- Method: `GET`
-
-#### Example:
-
-`GET https://uwc.ymstnt.com/study-periods`
-
-Response:
-Returns a JSON array of study periods.
-
-```JSON
-[
-  {
-    "start": "2025-09-01T00:00:00Z",
-    "end": "2025-12-13T00:00:00Z",
-    "semester": "2025/26/1"
-  },
-  ...
-]
-```
-
-### 3. Get Exam Periods
-
-- Endpoint: `/exam-periods`
-- Method: `GET`
-
-#### Example:
-
-`GET https://uwc.ymstnt.com/exam-periods`
-
-Response:
-Returns a JSON array of exam periods.
-
-```JSON
-[
-  {
-    "start": "2025-12-15T00:00:00Z",
-    "end": "2026-02-06T00:00:00Z",
-    "semester": "2025/26/1"
-  },
-  ...
-]
-```
+| Key          | Type                                                 | Description                                                                                                                   |
+| ------------ | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| week         | int                                                  | The current numnber of the week of the semester OR the remaining days of the break/exam period.                               |
+| suffix       | string                                               | Suffix of the number of the week, depending on the language.                                                                  |
+| verbose      | string                                               | The verbose name of the current period. Only has effect if it's registration week/exam period/break. Depends on the language. |
+| exam         | bool                                                 | True if an exam period is active. Mutually exclusive with `study`.                                                            |
+| study        | bool                                                 | True if a study period is active. Mutually exclusive with `exam`.                                                             |
+| regWeek      | bool                                                 | True if it's registration week. (the 0th week of a semester)                                                                  |
+| studyPeriods | array[ { start(time), end(time), semester(string)} ] | A JSON array of study periods in descending order.                                                                            |
+| examPeriods  | array[ { start(time), end(time), semester(string)}   | A JSON array of exam periods in descending order.                                                                             |
 
 ## Usage
 
