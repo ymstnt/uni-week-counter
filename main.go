@@ -50,28 +50,34 @@ func calculateDaysBetween(start, end time.Time) int {
 	return days
 }
 
-func getPeriods(w http.ResponseWriter, r *http.Request, period []Period) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(period)
+type ResponseData struct {
+	Week            int      `json:"week"`
+	Suffix          string   `json:"suffix"`
+	Verbose         string   `json:"verbose"`
+	Exam            bool     `json:"exam"`
+	Study           bool     `json:"study"`
+	RegWeek         bool     `json:"regWeek"`
+	StudyPeriods    []Period `json:"studyPeriods"`
+	ExamPeriods     []Period `json:"examPeriods"`
 }
 
 func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 	currentDate := time.Now()
 	//currentDate := date(2026, 2, 8)
 
-	var response string
+	var weekNum int
+	var verbose string
+	var suffix string
 
 	isInExamPeriod := false
-	var firstStudyPeriodStart time.Time
+	isInStudyPeriod := false
 	isRegWeek := false
+	var firstStudyPeriodStart time.Time
 
 	lang := r.URL.Query().Get("lang")
 	if lang != "hu" {
 		lang = "en"
 	}
-
-	verbose := r.URL.Query().Has("verbose")
-	countdown := r.URL.Query().Has("countdown")
 
 	for _, period := range examPeriods {
 		if isDateInPeriod(currentDate, period) {
@@ -83,6 +89,7 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 	if !isInExamPeriod {
 		for _, period := range studyPeriods {
 			if isDateInPeriod(currentDate, period) {
+				isInStudyPeriod = true
 				firstStudyPeriodStart = period.Start
 				break
 			}
@@ -96,83 +103,59 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if isRegWeek {
-			if !verbose {
-				response = "0"
+			weekNum = 0
+			
+			if lang == "hu" {
+				
+			}
+			if lang == "hu" {
+				verbose = "Regisztrációs hét"
+				suffix = "."
 			} else {
-				if lang == "hu" {
-					response = "Regisztrációs hét"
-				} else {
-					response = "Registration week"
-				}
+				verbose = "Registration week"
+				suffix = "th"
 			}
 		} else if !firstStudyPeriodStart.IsZero() {
 			weeksPassed := int(currentDate.Sub(firstStudyPeriodStart).Hours() / (24 * 7))
-			if verbose {
-				suffix := getSuffix(weeksPassed)
-				if lang == "hu" {
-					suffix = "."
-				}
-				response = fmt.Sprintf("%d%s", weeksPassed, suffix)
-			} else {
-				response = fmt.Sprintf("%d", weeksPassed)
+			suffix = getSuffix(weeksPassed)
+			if lang == "hu" {
+				suffix = "."
 			}
+			weekNum = weeksPassed
 		} else {
 			// Breaks
-			response = "-2"
-
-			if verbose {
-				if lang == "hu" {
-					if countdown {
-						days := calculateDaysBetween(currentDate, studyPeriods[0].Start)
-						response = fmt.Sprintf("Szünet (%d nap van hátra)", days)
-					} else {
-						response = "Szünet"
-					}
-				} else {
-					if countdown {
-						days := calculateDaysBetween(currentDate, studyPeriods[0].Start)
-						response = fmt.Sprintf("Break (%d days left)", days)
-					} else {
-						response = "Break"
-					}
-				}
+			weekNum = calculateDaysBetween(currentDate, studyPeriods[0].Start)
+			if lang == "hu" {
+				verbose = "Szünet"
 			} else {
-				if countdown {
-					days := calculateDaysBetween(currentDate, studyPeriods[0].Start)
-					response = fmt.Sprintf("%d", days)
-				}
+				verbose = "Break"
 			}
 		}
 	} else {
 		// Exams
-		response = "-1"
+		weekNum = calculateDaysBetween(currentDate, studyPeriods[0].Start)
 
-		if verbose {
-			if lang == "hu" {
-				if countdown {
-					days := calculateDaysBetween(currentDate, studyPeriods[0].Start)
-					response = fmt.Sprintf("Vizsgaidőszak - szünet (%d nap van hátra)", days)
-				} else {
-					response = "Vizsgaidőszak - szünet"
-				}
-			} else {
-				if countdown {
-					days := calculateDaysBetween(currentDate, studyPeriods[0].Start)
-					response = fmt.Sprintf("Exams - break (%d days left)", days)
-				} else {
-					response = "Exams - break"
-				}
-			}
+		if lang == "hu" {
+			verbose = "Vizsgaidőszak - szünet"
 		} else {
-			if countdown {
-				days := calculateDaysBetween(currentDate, studyPeriods[0].Start)
-				response = fmt.Sprintf("%d", days)
-			}
+			verbose = "Exams - break"
 		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": response})
+
+	response := ResponseData{
+		Week:                 weekNum,
+		Suffix:                suffix,
+		Verbose:              verbose,
+		Exam:          isInExamPeriod,
+		Study:        isInStudyPeriod,
+		RegWeek:            isRegWeek,
+		StudyPeriods:    studyPeriods,
+		ExamPeriods:      examPeriods,
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 func getSuffix(weekNum int) string {
@@ -202,12 +185,6 @@ func main() {
 	}
 
 	http.HandleFunc("/uwc", getCurrentWeek)
-	http.HandleFunc("/study-periods", func(w http.ResponseWriter, r *http.Request) {
-		getPeriods(w, r, studyPeriods)
-	})
-	http.HandleFunc("/exam-periods", func(w http.ResponseWriter, r *http.Request) {
-		getPeriods(w, r, examPeriods)
-	})
 
 	go func() {
 		err := http.ListenAndServe(":"+port, nil)
