@@ -17,7 +17,7 @@ This API provides information about study and exam periods for Obuda University.
 
 #### Example:
 
-`GET https://uwc.ymstnt.com/uwc?lang=hu`
+`GET https://api.ymstnt.com/uwc?lang=hu`
 
 Response:
 
@@ -75,7 +75,7 @@ Returns the number of the week (or remaining days if it's a break or exam period
 
 ### Hosted
 
-There is a hosted instance available at https://uwc.ymstnt.com
+There is a hosted instance available at https://api.ymstnt.com
 
 ### Running Locally
 
