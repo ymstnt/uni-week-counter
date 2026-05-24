@@ -53,28 +53,33 @@ func calculateDaysBetween(start, end time.Time) int {
 }
 
 type ResponseData struct {
-	Week            int      `json:"week"`
-	Suffix          string   `json:"suffix"`
-	Verbose         string   `json:"verbose"`
-	Exam            bool     `json:"exam"`
-	Study           bool     `json:"study"`
-	RegWeek         bool     `json:"regWeek"`
-	StudyPeriods    []Period `json:"studyPeriods"`
-	ExamPeriods     []Period `json:"examPeriods"`
+	Week         *int     `json:"week"`
+	Suffix       string   `json:"suffix"`
+	Verbose      string   `json:"verbose"`
+	DaysLeft     int      `json:"daysLeft"`
+	Exam         bool     `json:"exam"`
+	Study        bool     `json:"study"`
+	RegWeek      bool     `json:"regWeek"`
+	StudyPeriods []Period `json:"studyPeriods"`
+	ExamPeriods  []Period `json:"examPeriods"`
 }
 
 func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 	currentDate := time.Now()
 	//currentDate := date(2026, 2, 8)
 
-	var weekNum int
+	var weekNum *int = nil
+	var daysLeft int
 	var verbose string
 	var suffix string
 
 	isInExamPeriod := false
 	isInStudyPeriod := false
 	isRegWeek := false
-	var firstStudyPeriodStart time.Time
+	var currentStudyPeriodStart time.Time
+	var currentStudyPeriodEnd time.Time
+
+	countdownToEndOfBreak := r.URL.Query().Has("countdown-breaks")
 
 	lang := r.URL.Query().Get("lang")
 	if lang != "hu" {
@@ -92,24 +97,25 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 		for _, period := range studyPeriods {
 			if isDateInPeriod(currentDate, period) {
 				isInStudyPeriod = true
-				firstStudyPeriodStart = period.Start
+				currentStudyPeriodStart = period.Start
+				currentStudyPeriodEnd = period.End
 				break
 			}
 		}
 
-		if !firstStudyPeriodStart.IsZero() {
-			regWeekEnd := firstStudyPeriodStart.Add(7 * 24 * time.Hour)
+		if !currentStudyPeriodStart.IsZero() {
+			regWeekEnd := currentStudyPeriodStart.Add(7 * 24 * time.Hour)
 			if currentDate.Before(regWeekEnd) {
 				isRegWeek = true
 			}
 		}
 
 		if isRegWeek {
-			weekNum = 0
-			
-			if lang == "hu" {
-				
-			}
+			val := 0
+			weekNum = &val
+
+			daysLeft = calculateDaysBetween(currentDate, currentStudyPeriodEnd)
+
 			if lang == "hu" {
 				verbose = "Regisztrációs hét"
 				suffix = "."
@@ -117,16 +123,17 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 				verbose = "Registration week"
 				suffix = "th"
 			}
-		} else if !firstStudyPeriodStart.IsZero() {
-			weeksPassed := int(currentDate.Sub(firstStudyPeriodStart).Hours() / (24 * 7))
+		} else if !currentStudyPeriodStart.IsZero() {
+			weeksPassed := int(currentDate.Sub(currentStudyPeriodStart).Hours() / (24 * 7))
+			daysLeft = calculateDaysBetween(currentDate, currentStudyPeriodEnd)
 			suffix = getSuffix(weeksPassed)
 			if lang == "hu" {
 				suffix = "."
 			}
-			weekNum = weeksPassed
+			weekNum = &weeksPassed
 		} else {
 			// Breaks
-			weekNum = calculateDaysBetween(currentDate, studyPeriods[0].Start)
+			daysLeft = calculateDaysBetween(currentDate, studyPeriods[0].Start)
 			if lang == "hu" {
 				verbose = "Szünet"
 			} else {
@@ -135,7 +142,11 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// Exams
-		weekNum = calculateDaysBetween(currentDate, studyPeriods[0].Start)
+		if countdownToEndOfBreak {
+			daysLeft = calculateDaysBetween(currentDate, studyPeriods[0].Start)
+		} else {
+			daysLeft = calculateDaysBetween(currentDate, examPeriods[1].End)
+		}
 
 		if lang == "hu" {
 			verbose = "Vizsgaidőszak - szünet"
@@ -147,14 +158,15 @@ func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	response := ResponseData{
-		Week:                 weekNum,
-		Suffix:                suffix,
-		Verbose:              verbose,
-		Exam:          isInExamPeriod,
+		Week:         weekNum,
+		Suffix:       suffix,
+		Verbose:      verbose,
+		DaysLeft:     daysLeft,
+		Exam:         isInExamPeriod,
 		Study:        isInStudyPeriod,
-		RegWeek:            isRegWeek,
-		StudyPeriods:    studyPeriods,
-		ExamPeriods:      examPeriods,
+		RegWeek:      isRegWeek,
+		StudyPeriods: studyPeriods,
+		ExamPeriods:  examPeriods,
 	}
 
 	json.NewEncoder(w).Encode(response)

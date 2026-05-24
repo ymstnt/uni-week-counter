@@ -11,9 +11,10 @@ This API provides information about study and exam periods for Obuda University.
 
 #### Query Parameters:
 
-| Parameter | Type   | Required? | Description                                                                                                             |
-| --------- | ------ | --------- | ----------------------------------------------------------------------------------------------------------------------- |
-| lang      | string | no        | Language for the response. Affects the suffix and verbose responses. Accepts either `en` (default) or `hu` (Hungarian). |
+| Parameter        | Type   | Required? | Description                                                                                                                     |
+| ---------------- | ------ | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| lang             | string | no        | Language for the response. Affects the suffix and verbose responses. Accepts either `en` (default) or `hu` (Hungarian).         |
+| countdown-breaks | bool   | no        | If present, in exam periods, coundown to the end of the break instead of the end of the exam period. Useful if done with exams. |
 
 #### Example:
 
@@ -21,13 +22,14 @@ This API provides information about study and exam periods for Obuda University.
 
 Response:
 
-Returns the number of the week (or remaining days if it's a break or exam period), suffix (language dependent), verbose name (if it's not a study period), if it's an exam period, if it's a study period, if it's registration week, the study periods and the exam periods.
+Returns the number of the week (or null, if it's exams or break); suffix (language dependent); verbose name (if it's not a study period); days left of the current study period, exam period or break (can be also set to always return the days left till the end of the break, regardless if it's an exam period or not); if it's an exam period; if it's a study period; if it's registration week; the study periods and the exam periods.
 
 ```JSON
 {
   "week": 1,
-  "suffix": ".",
+  "suffix": ".", // or: st, nd, rd, th
   "verbose": "", // can be: "Registration week" or "Regisztrációs hét", "Exams - break" or "Vizsgaidőszak - szünet" and "Break" or "Szünet"
+  "daysLeft": 97,
   "exam": false,
   "study": true,
   "regWeek": false,
@@ -60,16 +62,17 @@ Returns the number of the week (or remaining days if it's a break or exam period
 }
 ```
 
-| Key          | Type                                                 | Description                                                                                                                   |
-| ------------ | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| week         | int                                                  | The current numnber of the week of the semester OR the remaining days of the break/exam period.                               |
-| suffix       | string                                               | Suffix of the number of the week, depending on the language.                                                                  |
-| verbose      | string                                               | The verbose name of the current period. Only has effect if it's registration week/exam period/break. Depends on the language. |
-| exam         | bool                                                 | True if an exam period is active. Mutually exclusive with `study`.                                                            |
-| study        | bool                                                 | True if a study period is active. Mutually exclusive with `exam`.                                                             |
-| regWeek      | bool                                                 | True if it's registration week. (the 0th week of a semester)                                                                  |
-| studyPeriods | array[ { start(time), end(time), semester(string)} ] | A JSON array of study periods in descending order.                                                                            |
-| examPeriods  | array[ { start(time), end(time), semester(string)}   | A JSON array of exam periods in descending order.                                                                             |
+| Key          | Type                                                 | Description                                                                                                                                                                                        |
+| ------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| week         | int                                                  | The current numnber of the week of the semester OR the remaining days of the break/exam period.                                                                                                    |
+| suffix       | string                                               | Suffix of the number of the week, depending on the language.                                                                                                                                       |
+| verbose      | string                                               | The verbose name of the current period. Only has effect if it's registration week/exam period/break. Depends on the language.                                                                      |
+| daysLeft     | int                                                  | Days left of the current study period, exam period or break. If `countdown-breaks` is present, it will show the days left of the break in exam periods too, instead of the days left of the exams. |
+| exam         | bool                                                 | True if an exam period is active. Mutually exclusive with `study`.                                                                                                                                 |
+| study        | bool                                                 | True if a study period is active. Mutually exclusive with `exam`.                                                                                                                                  |
+| regWeek      | bool                                                 | True if it's registration week. (the 0th week of a semester)                                                                                                                                       |
+| studyPeriods | array[ { start(time), end(time), semester(string)} ] | A JSON array of study periods in descending order.                                                                                                                                                 |
+| examPeriods  | array[ { start(time), end(time), semester(string)}   | A JSON array of exam periods in descending order.                                                                                                                                                  |
 
 ## Usage
 
