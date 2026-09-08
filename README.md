@@ -22,7 +22,15 @@ This API provides information about study and exam periods for Obuda University.
 
 Response:
 
-Returns the number of the week (or null, if it's exams or break); suffix (language dependent); verbose name (if it's not a study period); days left of the current study period, exam period or break (can be also set to always return the days left till the end of the break, regardless if it's an exam period or not); if it's an exam period; if it's a study period; if it's registration week; the study periods and the exam periods.
+Returns:
+- the number of the week (or null, if it's exams or break);
+- suffix (language dependent);
+- verbose name (if it's not a study period);
+- days left of the current study period, exam period or break (can be also set to always return the days left till the end of the break, regardless if it's an exam period or not);
+- if it's an exam period;
+- if it's a study period;
+- if it's registration week;
+- the study periods and the exam periods.
 
 ```JSON
 {
@@ -78,7 +86,7 @@ Returns the number of the week (or null, if it's exams or break); suffix (langua
 
 ### Hosted
 
-There is a hosted instance available at https://api.ymstnt.com
+There is a hosted instance available at https://api.ymstnt.com, make a GET request to https://api.ymstnt.com/uwc
 
 ### Running Locally
 
@@ -95,7 +103,5 @@ There is a hosted instance available at https://api.ymstnt.com
       export PORT=9090
       go run main.go
     ```
-- Access the API: Open your browser or use a tool like Bruno or curl to access the endpoints:
-  - Current Week: `http://localhost:8080/uwc`
-  - Study Periods: `http://localhost:8080/study-periods`
-  - Exam Periods: `http://localhost:8080/exam-periods`
+- Access the API: Open your browser or use a tool like Bruno or curl to access the endpoint:
+  - Get everything: `http://localhost:8080/uwc`
