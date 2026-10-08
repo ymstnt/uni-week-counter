@@ -64,7 +64,7 @@ type ResponseData struct {
 	ExamPeriods  []Period `json:"examPeriods"`
 }
 
-func getCurrentWeek(w http.ResponseWriter, r *http.Request) {
+func getEverything(w http.ResponseWriter, r *http.Request) {
 	currentDate := time.Now()
 	//currentDate := date(2026, 2, 8)
 
@@ -218,7 +218,7 @@ func main() {
 		examPeriods[i].SetSemester()
 	}
 
-	http.HandleFunc("/uwc", getCurrentWeek)
+	http.HandleFunc("/uwc", getEverything)
 
 	go func() {
 		err := http.ListenAndServe(":"+port, nil)
