@@ -18,28 +18,40 @@ func date(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
-// Start should be the first Monday of exam periods, End should be the last Friday
+// Define periods in periods.json
+// For study periods, start should be the first Monday of study periods (including registration week), end should be the last Saturday
+// For exam periods, start should be the first Monday of exam periods, end should be the last Saturday
 // Periods should be descending, newest period should be at the top
-var examPeriods = []Period{
-	{Start: date(2026, 12, 14), End: date(2027, 2, 6)},
-	{Start: date(2026, 5, 26), End: date(2026, 7, 4)},
-	{Start: date(2025, 12, 15), End: date(2026, 2, 6)},
-	{Start: date(2025, 5, 26), End: date(2025, 7, 5)},
-	{Start: date(2024, 12, 16), End: date(2025, 2, 8)},
-	{Start: date(2024, 5, 20), End: date(2024, 6, 29)},
-	{Start: date(2023, 12, 18), End: date(2024, 2, 3)},
+
+type ConfigPeriod struct {
+	Start string `json:"start"`
+	End   string `json:"end"`
 }
 
-// Start should be the first Monday of study periods (including registration week), End should be the last Saturday
-// Periods should be descending, newest period should be at the top
-var studyPeriods = []Period{
-	{Start: date(2026, 8, 31), End: date(2026, 12, 12)},
-	{Start: date(2026, 2, 9), End: date(2026, 5, 23)},
-	{Start: date(2025, 9, 1), End: date(2025, 12, 13)},
-	{Start: date(2025, 2, 10), End: date(2025, 5, 24)},
-	{Start: date(2024, 9, 2), End: date(2024, 12, 14)},
-	{Start: date(2024, 2, 5), End: date(2024, 5, 18)},
-	{Start: date(2023, 9, 4), End: date(2023, 12, 16)},
+type ConfigData struct {
+	StudyPeriods []ConfigPeriod `json:"studyPeriods"`
+	ExamPeriods  []ConfigPeriod `json:"examPeriods"`
+}
+
+var studyPeriods []Period
+var examPeriods []Period
+
+func loadPeriods(filepath string) {
+	data, _ := os.ReadFile(filepath)
+	var conf ConfigData
+	json.Unmarshal(data, &conf)
+
+	for _, p := range conf.StudyPeriods {
+		s, _ := time.Parse("2006-01-02", p.Start)
+		e, _ := time.Parse("2006-01-02", p.End)
+		studyPeriods = append(studyPeriods, Period{Start: s, End: e})
+	}
+
+	for _, p := range conf.ExamPeriods {
+		s, _ := time.Parse("2006-01-02", p.Start)
+		e, _ := time.Parse("2006-01-02", p.End)
+		examPeriods = append(examPeriods, Period{Start: s, End: e})
+	}
 }
 
 func isDateInPeriod(date time.Time, period Period) bool {
@@ -212,6 +224,8 @@ func main() {
 	} else if len(os.Args) > 1 {
 		port = os.Args[1]
 	}
+
+	loadPeriods("periods.json")
 
 	for i := range studyPeriods {
 		studyPeriods[i].SetSemester()
