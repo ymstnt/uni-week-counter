@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -23,6 +24,9 @@ func date(year int, month time.Month, day int) time.Time {
 // For exam periods, start should be the first Monday of exam periods, end should be the last Saturday
 // Periods should be descending, newest period should be at the top
 
+//go:embed periods.json
+var configBytes []byte
+
 type ConfigPeriod struct {
 	Start string `json:"start"`
 	End   string `json:"end"`
@@ -36,10 +40,9 @@ type ConfigData struct {
 var studyPeriods []Period
 var examPeriods []Period
 
-func loadPeriods(filepath string) {
-	data, _ := os.ReadFile(filepath)
+func loadPeriods() {
 	var conf ConfigData
-	json.Unmarshal(data, &conf)
+	json.Unmarshal(configBytes, &conf)
 
 	for _, p := range conf.StudyPeriods {
 		s, _ := time.Parse("2006-01-02", p.Start)
@@ -225,7 +228,7 @@ func main() {
 		port = os.Args[1]
 	}
 
-	loadPeriods("periods.json")
+	loadPeriods()
 
 	for i := range studyPeriods {
 		studyPeriods[i].SetSemester()
