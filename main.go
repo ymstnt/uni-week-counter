@@ -77,6 +77,8 @@ type ResponseData struct {
 	RegWeek      bool     `json:"regWeek"`
 	StudyPeriods []Period `json:"studyPeriods"`
 	ExamPeriods  []Period `json:"examPeriods"`
+	CurrentIndex int      `json:"currentIndex"`
+	NextIndex    int      `json:"nextIndex"`
 }
 
 func getEverything(w http.ResponseWriter, r *http.Request) {
@@ -170,6 +172,8 @@ func getEverything(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	currentIndex, nextIndex := getIndexes(studyPeriods, examPeriods, currentDate)
+
 	w.Header().Set("Content-Type", "application/json")
 
 	response := ResponseData{
@@ -182,6 +186,8 @@ func getEverything(w http.ResponseWriter, r *http.Request) {
 		RegWeek:      isRegWeek,
 		StudyPeriods: studyPeriods,
 		ExamPeriods:  examPeriods,
+		CurrentIndex: currentIndex,
+		NextIndex:    nextIndex,
 	}
 
 	json.NewEncoder(w).Encode(response)
@@ -201,6 +207,22 @@ func getSuffix(weekNum int) string {
 	}
 
 	return suffix
+}
+
+func getIndexes(studyPeriods []Period, examPeriods []Period, date time.Time) (currentIndex int, nextIndex int) {
+	for i := 0; i < len(studyPeriods) && i < len(examPeriods); i++ {
+		if isDateInPeriod(date, studyPeriods[i]) || isDateInPeriod(date, examPeriods[i]) {
+			currentIndex = i
+			break
+		}
+	}
+
+	nextIndex = -1
+	if currentIndex-1 != nextIndex {
+		nextIndex = currentIndex - 1
+	}
+
+	return currentIndex, nextIndex
 }
 
 func (p *Period) SetSemester() {
