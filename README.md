@@ -66,7 +66,9 @@ Returns:
       "semester": "2025/26/1"
     },
     ...
-  ]
+  ],
+  currentIndex: 0,
+  nextIndex: -1
 }
 ```
 
@@ -81,6 +83,8 @@ Returns:
 | regWeek      | bool                                                 | True if it's registration week. (the 0th week of a semester)                                                                                                                                       |
 | studyPeriods | array[ { start(time), end(time), semester(string)} ] | A JSON array of study periods in descending order.                                                                                                                                                 |
 | examPeriods  | array[ { start(time), end(time), semester(string)}   | A JSON array of exam periods in descending order.                                                                                                                                                  |
+| currentIndex | int                                                  | Returns the index of the current study and exam period. Use it to find the current periods from both arrays.                                                                                       |
+| nextIndex    | int                                                  | Returns the index of the next study and exam periods. Use it to find the upcoming periods from both arrays. If there are no upcoming periods, the value will be `-1`.                              |
 
 ## Usage
 
